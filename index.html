@@ -36,10 +36,40 @@
         .animate-shake { animation: shake 0.5s; }
 
         .card-hover:hover { transform: translateY(-10px); box-shadow: 0 0 15px #CE9927; }
-        
+
+        /* shared character rules */
+        .char {
+            position: absolute;
+            bottom: 0;
+            width: clamp(17vw, 27vw, 42vw);
+        }
+
+        .char img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        /* kiri — mirrored */
+        .char.left {
+            left: 20%;
+        }
+
+        .char.left img {
+            transform: scaleX(-1);
+        }
+
+        /* kanan — normal */
+        .char.right {
+            right: 20%;
+        }
+
+
+
         /* Scrollbar hide */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
     </style>
 </head>
 <body class="overflow-hidden w-screen h-screen relative">
@@ -57,6 +87,9 @@
         <p class="text-xl text-center px-4">Mohon putar perangkat ke Landscape.</p>
     </div>
 
+    <audio id="bgm" loop>
+        <source src="assets/audio/main.mp3" type="audio/mp3">
+    </audio>
     <script>
         /**
          * GAME DATA (Embedded for Single File Portability)
@@ -97,7 +130,7 @@
             MAGIC_DMG: 75,
             MAX_ENERGY: 10,
             POISON_DECAY: 5,
-            QUIZ_TIME: 120
+            QUIZ_TIME: 60
         };
 
         /**
@@ -285,6 +318,13 @@
                 const active = this.getCurrentPlayer();
 
                 this.app.innerHTML = `
+                    <div class="char left">
+                        <img src="assets/player1/persiapan.png" alt="">
+                    </div>
+
+                    <div class="char right">
+                        <img src="assets/player2/persiapan.png" alt="">
+                    </div>
                     <div class="flex flex-col h-full justify-between p-4 relative">
                         
                         <div class="flex justify-between items-start ${this.turnIndex === 0 ? 'opacity-100' : 'opacity-60'}">
@@ -386,6 +426,10 @@
             // --- LOGIC ---
 
             startGame() {
+                const audio = document.getElementById("bgm");
+                audio.volume = 1;
+                audio.play();
+
                 const p1n = document.getElementById('p1Name').value || "Player 1";
                 const p2n = document.getElementById('p2Name').value || "Player 2";
                 
@@ -442,11 +486,11 @@
                 
                 let energy = 0;
                 if(isCorrect) {
-                    if (elapsed < 20) energy = 5;
-                    else if (elapsed < 40) energy = 4;
-                    else if (elapsed < 60) energy = 3;
-                    else if (elapsed < 90) energy = 2;
-                    else if (elapsed <= 120) energy = 1;
+                    if (elapsed < 10) energy = 5;
+                    else if (elapsed < 20) energy = 4;
+                    else if (elapsed < 30) energy = 3;
+                    else if (elapsed < 40) energy = 2;
+                    else if (elapsed <= 60) energy = 1;
                 }
 
                 this.getCurrentPlayer().addEnergy(energy);
