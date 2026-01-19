@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scientia - Prologue</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: { primary: '#CE9927', light: '#DDC48F' },
+                        base: '#050505',
+                        surface: '#1A1A1A',
+                    },
+                    fontFamily: { serif: ['"EB Garamond"', 'serif'] },
+                    boxShadow: { 'glow': '0 0 20px rgba(206, 153, 39, 0.5)' }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #050505;
+            color: #DDC48F;
+            font-family: "EB Garamond", serif;
+            overflow: hidden;
+        }
+        /* Utility untuk menyembunyikan elemen sebelum waktunya */
+        .hidden-forced { display: none !important; }
+    </style>
+</head>
+<body class="w-screen h-screen relative">
+
+    <div class="absolute inset-0 z-0 pointer-events-none">
+        <img src="assets/background.png" class="w-full h-full object-cover opacity-40" 
+             onerror="this.src='https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=2690&auto=format&fit=crop'">
+        <div class="absolute inset-0 bg-gradient-to-t from-base via-base/80 to-base"></div>
+    </div>
+
+    <audio id="story-bgm" loop>
+        <source src="assets/audio/scene.mp3" type="audio/mp3" />
+    </audio>
+
+    <div class="relative z-10 w-full h-full flex flex-col items-center justify-center p-8">
+
+        <div id="start-container" class="text-center animate__animated animate__fadeIn">
+            <h1 class="text-4xl md:text-6xl text-gold-primary font-bold mb-8 tracking-widest text-shadow">PROLOG</h1>
+            <button onclick="storyPlayer.begin()" 
+                    class="group relative inline-flex items-center justify-center px-12 py-6 overflow-hidden font-bold rounded-lg shadow-glow group">
+                <span class="absolute inset-0 w-full h-full transition duration-300 group-hover:rotate-180 bg-gradient-to-br from-gold-primary/20 via-gold-primary/0 to-gold-primary/20 opacity-50"></span>
+                <span class="absolute inset-0 w-full h-full border-2 border-gold-primary/50 group-hover:border-gold-primary transition-all duration-300 rounded-lg"></span>
+                <span class="relative text-xl tracking-[0.3em] text-gold-light group-hover:text-white transition-colors">
+                   MEMBUKA TABIR
+                </span>
+            </button>
+            <p class="mt-4 text-gold-primary/50 text-sm italic animate-pulse">Klik untuk memulai perjalanan...</p>
+        </div>
+
+        <div id="story-container" class="hidden-forced w-full h-full flex flex-col items-center justify-center relative">
+            
+            <div class="w-full max-w-4xl h-[60vh] md:h-[70vh] relative flex items-center justify-center p-4 border border-gold-primary/30 bg-base/50 rounded-xl shadow-2xl backdrop-blur-sm">
+                <img id="story-image" 
+                     src="" 
+                     alt="Story Frame" 
+                     class="max-w-full max-h-full object-contain rounded shadow-glow animate__animated"
+                     onerror="this.src='https://via.placeholder.com/800x450/1a1a1a/ce9927?text=Visual+Cerita+Tidak+Ditemukan'">
+            </div>
+
+            <div class="mt-6 text-gold-primary/50 tracking-widest text-sm">
+                BAGIAN <span id="current-slide">1</span> / 11
+            </div>
+
+            <div class="absolute bottom-8 right-8">
+                <button onclick="storyPlayer.skip()" class="px-6 py-2 border border-gold-primary/50 text-gold-primary/70 hover:bg-gold-primary hover:text-base transition-all rounded text-sm tracking-widest font-bold flex items-center gap-2 group">
+                    SKIP PROLOG
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        const storyPlayer = {
+            totalSlides: 11,
+            currentSlide: 1,
+            slideDuration: 4000, // Durasi per gambar (ms) yaitu 4 detik
+            intervalId: null,
+            bgm: document.getElementById('story-bgm'),
+            startContainer: document.getElementById('start-container'),
+            storyContainer: document.getElementById('story-container'),
+            storyImage: document.getElementById('story-image'),
+            slideCounter: document.getElementById('current-slide'),
+
+            // Fungsi dipanggil saat tombol misterius ditekan
+            begin: function() {
+                // 1. Mulai Musik
+                this.bgm.volume = 0.7;
+                this.bgm.play().catch(e => console.log("Audio autoplay prevented until interaction"));
+
+                // 2. Transisi UI
+                this.startContainer.classList.add('animate__fadeOut');
+                setTimeout(() => {
+                    this.startContainer.classList.add('hidden-forced');
+                    this.storyContainer.classList.remove('hidden-forced');
+                    this.storyContainer.classList.add('animate__animated', 'animate__fadeIn');
+                    
+                    // 3. Mulai Slideshow
+                    this.showSlide(this.currentSlide);
+                    this.startTimer();
+                }, 800); // Tunggu animasi fadeOut selesai
+            },
+
+            // Menampilkan slide berdasarkan index
+            showSlide: function(index) {
+                if (index > this.totalSlides) {
+                    this.finish();
+                    return;
+                }
+
+                // Reset animasi agar bisa diputar ulang pada setiap slide baru
+                this.storyImage.classList.remove('animate__fadeIn');
+                void this.storyImage.offsetWidth; // Trigger reflow CSS
+
+                // Update Source Gambar
+                // Path: assets/story/1.png, assets/story/2.png, dll.
+                this.storyImage.src = `assets/story/${index}.png`;
+                
+                // Pasang kembali animasi masuk
+                this.storyImage.classList.add('animate__fadeIn');
+                
+                // Update counter UI
+                this.slideCounter.innerText = index;
+            },
+
+            // Timer otomatis untuk pindah slide
+            startTimer: function() {
+                this.intervalId = setInterval(() => {
+                    this.currentSlide++;
+                    this.showSlide(this.currentSlide);
+                }, this.slideDuration);
+            },
+
+            // Fungsi untuk tombol Skip
+            skip: function() {
+                clearInterval(this.intervalId);
+                // Efek fade out sebelum pindah
+                this.storyContainer.classList.remove('animate__fadeIn');
+                this.storyContainer.classList.add('animate__fadeOut');
+                setTimeout(() => {
+                    this.finish();
+                }, 500);
+            },
+
+            // Aksi terakhir: Pindah ke game utama
+            finish: function() {
+                clearInterval(this.intervalId);
+                // Fade out musik pelan-pelan (opsional, menambah kesan premium)
+                let vol = this.bgm.volume;
+                const fadeAudio = setInterval(() => {
+                    if (vol > 0.05) {
+                        vol -= 0.05;
+                        this.bgm.volume = vol;
+                    } else {
+                        clearInterval(fadeAudio);
+                        // REDIRECT KE GAME UTAMA
+                        window.location.href = 'game.html';
+                    }
+                }, 100);
+            }
+        };
+    </script>
+
+</body>
+</html>

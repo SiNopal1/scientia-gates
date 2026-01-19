@@ -1,845 +1,188 @@
 <!DOCTYPE html>
 <html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Scientia - Turn Based Card Battle</title>
-
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scientia - Battle of Wits</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
-    />
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
-    ></script>
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
-    ></script>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
-    <link
-      href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600;800&display=swap"
-      rel="stylesheet"
-    />
-
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
-    />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            primary: '#CE9927', //
+                            light: '#DDC48F',   //
+                        },
+                        base: '#050505',        //
+                        surface: '#1A1A1A',     //
+                        accent: '#EF4444',      //
+                    },
+                    fontFamily: {
+                        serif: ['"EB Garamond"', 'serif'], //
+                    },
+                    boxShadow: {
+                        'glow': '0 0 15px #CE9927', //
+                    }
+                }
+            }
+        }
+    </script>
 
     <style>
-      body {
-        font-family: "EB Garamond", serif;
-        background-color: #050505;
-        color: #ddc48f;
-        user-select: none;
-      }
-
-      /* Custom Colors based on Prompt */
-      .text-gold-primary {
-        color: #ce9927;
-      }
-      .bg-gold-primary {
-        background-color: #ce9927;
-      }
-      .border-gold-primary {
-        border-color: #ce9927;
-      }
-      .text-gold-light {
-        color: #ddc48f;
-      }
-      .bg-gold-light {
-        background-color: #ddc48f;
-      }
-
-      /* Animations */
-      @keyframes shake {
-        0% {
-          transform: translate(1px, 1px) rotate(0deg);
+        body {
+            background-color: #050505; /* */
+            color: #DDC48F; /* */
+            font-family: "EB Garamond", serif;
         }
-        10% {
-          transform: translate(-1px, -2px) rotate(-1deg);
+        
+        .text-shadow {
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
-        20% {
-          transform: translate(-3px, 0px) rotate(1deg);
+
+        /* Hover effect cards */
+        .card-item {
+            transition: all 0.3s ease;
         }
-        30% {
-          transform: translate(3px, 2px) rotate(0deg);
+        .card-item:hover {
+            transform: translateY(-10px); /* */
+            box-shadow: 0 0 15px #CE9927; /* */
+            z-index: 10;
         }
-        40% {
-          transform: translate(1px, -1px) rotate(1deg);
-        }
-        50% {
-          transform: translate(-1px, 2px) rotate(-1deg);
-        }
-        60% {
-          transform: translate(-3px, 1px) rotate(0deg);
-        }
-        100% {
-          transform: translate(0, 0) rotate(0deg);
-        }
-      }
-      .animate-shake {
-        animation: shake 0.5s;
-      }
-
-      .card-hover:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 0 15px #ce9927;
-      }
-
-      /* shared character rules */
-      .char {
-        position: absolute;
-        bottom: 0;
-        width: clamp(17vw, 27vw, 42vw);
-      }
-
-      .char img {
-        width: 100%;
-        height: auto;
-        object-fit: contain;
-      }
-
-      /* kiri — mirrored */
-      .char.left {
-        left: 0%;
-      }
-
-      .char.left img {
-        transform: scaleX(-1);
-      }
-
-      /* kanan — normal */
-      .char.right {
-        right: 0%;
-      }
-
-      /* Scrollbar hide */
-      .no-scrollbar::-webkit-scrollbar {
-        display: none;
-      }
-      .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
     </style>
-  </head>
-  <body class="overflow-hidden w-screen h-screen relative">
-    <div class="absolute inset-0 z-0">
-      <img
-        src="assets/background.png"
-        class="w-full h-full object-cover opacity-40"
-        onerror="this.src='https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=2690&auto=format&fit=crop'"
-      />
-      <div
-        class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black"
-      ></div>
-    </div>
+</head>
+<body class="overflow-x-hidden">
 
-    <div id="app" class="relative z-10 w-full h-full flex flex-col"></div>
+    <section class="relative h-screen w-full flex flex-col items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="assets/background.png" class="w-full h-full object-cover opacity-40" onerror="this.src='https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=2690&auto=format&fit=crop'">
+            <div class="absolute inset-0 bg-gradient-to-b from-base via-transparent to-base"></div> </div>
 
-    <div
-      id="orientation-warning"
-      class="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center hidden"
-    >
-      <div class="text-4xl text-[#CE9927] mb-4">⚠️</div>
-      <p class="text-xl text-center px-4">
-        Mohon putar perangkat ke Landscape.
-      </p>
-    </div>
+        <div class="relative z-10 text-center px-4 max-w-4xl animate__animated animate__fadeIn">
+            <p class="text-gold-primary uppercase tracking-[0.5em] text-sm mb-4 font-bold">Turn Based Card Battle</p>
+            <h1 class="text-7xl md:text-9xl font-bold text-white mb-2 text-shadow">SCIENTIA</h1>
+            <div class="h-[2px] w-32 bg-gold-primary mx-auto mb-6"></div>
+            <h2 class="text-2xl md:text-3xl text-gold-light mb-8 italic">"Kecerdasan adalah Senjata Terkuatmu."</h2>
+            
+            <p class="text-gray-400 mb-10 max-w-xl mx-auto text-lg leading-relaxed">
+                Pertarungan kartu strategis berbasis ilmu pengetahuan. Jawab soal, kumpulkan energi, dan hancurkan lawan dengan mekanik <i>turn-based</i> yang brutal.
+            </p>
 
-    <audio id="bgm" loop>
-      <source src="assets/audio/main.mp3" type="audio/mp3" />
-    </audio>
-    <script src="database.js"></script>
-    <script>
+            <div class="flex flex-col md:flex-row items-center justify-center gap-4">
+                <a href="scene.html" class="group relative inline-flex items-center justify-center px-8 py-4 bg-gold-primary text-black font-bold text-xl tracking-wider hover:bg-white transition-all duration-300 rounded border-2 border-gold-primary hover:scale-105 shadow-glow w-full md:w-auto">
+                    <span>MULAI PERTARUNGAN</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </a>
 
-      /**
-       * GAME CONFIG
-       */
-      const CONFIG = {
-        MAX_HP: 2000,
-        BASE_DMG: 150,
-        BASE_DEF: 60,
-        MAGIC_DMG: 75,
-        MAX_ENERGY: 10,
-        POISON_DECAY: 5,
-        QUIZ_TIME: 60,
-      };
+                <a href="tutorial.html" class="group inline-flex items-center justify-center px-8 py-4 bg-transparent text-gold-primary font-bold text-xl tracking-wider hover:bg-gold-primary/10 transition-all duration-300 rounded border-2 border-gold-primary/50 hover:border-gold-primary w-full md:w-auto">
+                    <span>PELAJARI SENI PERANG</span>
+                </a>
+            </div>
 
-      /**
-       * GAME STATE & LOGIC
-       */
-      class Game {
-        constructor() {
-          this.app = document.getElementById("app");
-          this.state = "MENU"; // MENU, TRANSITION, QUIZ, BATTLE, GAMEOVER
-          this.turnIndex = 0; // 0 for P1, 1 for P2
-          this.players = [];
-          this.activeDeck = [];
-          this.currentQuestion = null;
-          this.quizStartTime = 0;
+            <p class="mt-6 text-xs text-gray-500 uppercase tracking-widest">Tersedia di Web • Tanpa Download</p>
+        </div>
+    </section>
 
-          // Init
-          this.checkOrientation();
-          window.addEventListener("resize", () => this.checkOrientation());
-          this.renderMenu();
-        }
+    <section class="py-24 px-6 bg-base relative border-t border-gold-primary/20">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <h3 class="text-gold-primary font-bold text-xl tracking-widest mb-2">THE MECHANICS</h3>
+                <h2 class="text-4xl md:text-5xl text-white font-bold">Bukan Sekadar Keberuntungan</h2>
+            </div>
 
-        checkOrientation() {
-          const warning = document.getElementById("orientation-warning");
-          if (
-            window.innerWidth < window.innerHeight &&
-            /Mobi|Android/i.test(navigator.userAgent)
-          ) {
-            warning.classList.remove("hidden");
-          } else {
-            warning.classList.add("hidden");
-          }
-        }
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-surface border border-gold-primary/30 p-8 rounded-lg hover:border-gold-primary transition-colors group">
+                    <div class="text-6xl mb-6 opacity-80 group-hover:scale-110 transition-transform duration-300">🧠</div>
+                    <h4 class="text-2xl text-gold-primary font-bold mb-4">1. Buktikan Pengetahuan</h4>
+                    <p class="text-gray-400 leading-relaxed">
+                        Energi seranganmu didapat dari kecepatan menjawab soal matematika dan sains. 
+                        <span class="text-white block mt-2 font-bold">Jawab < 10 detik = Full Energy.</span>
+                    </p>
+                </div>
 
-        // --- RENDERERS ---
+                <div class="bg-surface border border-gold-primary/30 p-8 rounded-lg hover:border-gold-primary transition-colors group">
+                    <div class="text-6xl mb-6 opacity-80 group-hover:scale-110 transition-transform duration-300">⚡</div>
+                    <h4 class="text-2xl text-gold-primary font-bold mb-4">2. Kelola Energi</h4>
+                    <p class="text-gray-400 leading-relaxed">
+                        Setiap kartu membutuhkan <i>cost</i>. Apakah kamu akan menabung energi untuk serangan besar, atau mencicil serangan kecil bertubi-tubi?
+                    </p>
+                </div>
 
-        renderMenu() {
-          this.app.innerHTML = `
-                    <div class="flex flex-col items-center justify-center min-h-screen p-2 animate-fade-in">
-                        <img src="assets/scientia.png" width="180" alt="Scientia Logo" onerror="this.src='https://via.placeholder.com/180x60?text=Scientia'" class="mb-3">
-                        
-                        <div class="bg-black/80 p-4 border-2 border-[#CE9927] rounded-lg w-full max-w-md">
-                            <!-- Input Nama -->
-                            <div class="space-y-2 mb-4">
-                                <input id="p1Name" type="text" placeholder="Nama Pemain 1 (Kiri)" class="w-full bg-[#1a1a1a] text-[#DDC48F] border border-[#CE9927] p-2 text-sm rounded focus:outline-none focus:ring-2 focus:ring-[#CE9927]">
-                                <input id="p2Name" type="text" placeholder="Nama Pemain 2 (Kanan)" class="w-full bg-[#1a1a1a] text-[#DDC48F] border border-[#CE9927] p-2 text-sm rounded focus:outline-none focus:ring-2 focus:ring-[#CE9927]">
-                            </div>
-                            
-                            <!-- MODE GAME -->
-                            <div class="mb-4">
-                                <div class="flex items-center space-x-2 mb-3">
-                                    <p class="text-[#CE9927] font-bold tracking-widest uppercase text-xs">Mode Permainan</p>
-                                    <div class="h-[1px] flex-grow bg-gradient-to-r from-[#CE9927]/50 to-transparent"></div>
-                                </div>
+                <div class="bg-surface border border-gold-primary/30 p-8 rounded-lg hover:border-gold-primary transition-colors group">
+                    <div class="text-6xl mb-6 opacity-80 group-hover:scale-110 transition-transform duration-300">⚔️</div>
+                    <h4 class="text-2xl text-gold-primary font-bold mb-4">3. Eksekusi Strategi</h4>
+                    <p class="text-gray-400 leading-relaxed">
+                        Gunakan kartu Taktis untuk menghancurkan DEF lawan, atau kartu Magic untuk serangan tak terhindarkan.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-                                <div class="grid grid-cols-3 gap-2 mb-4">
-                                    <label class="group relative cursor-pointer">
-                                        <input type="radio" name="gameMode" value="1000" class="peer sr-only game-mode-radio">
-                                        <div class="flex flex-col items-center justify-center p-2 border border-[#CE9927]/20 bg-[#1a1a1a] rounded-lg transition-all duration-300 peer-checked:border-[#CE9927] peer-checked:bg-[#CE9927]/10 group-hover:border-[#CE9927]/60">
-                                            <div class="absolute top-1 right-1 w-1 h-1 rounded-full border border-[#CE9927] peer-checked:bg-[#CE9927]"></div>
-                                            <span class="text-[9px] text-[#CE9927]/60 uppercase tracking-tighter font-medium">Quick</span>
-                                            <span class="text-white font-bold text-base group-hover:text-[#CE9927] transition-colors">1000</span>
-                                            <span class="text-[9px] text-gray-500 italic">HP</span>
-                                        </div>
-                                    </label>
+    <section class="py-24 overflow-hidden relative">
+        <div class="absolute inset-0 bg-gold-primary/5"></div>
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-12">
+                
+                <div class="md:w-1/2">
+                    <h3 class="text-gold-primary font-bold text-xl tracking-widest mb-2">THE ARSENAL</h3>
+                    <h2 class="text-4xl md:text-5xl text-white font-bold mb-6">Kartu Penentu Kemenangan</h2>
+                    <p class="text-lg text-gray-300 mb-8 leading-relaxed">
+                        Dari <span class="text-gold-primary">Tendangan T</span> yang menghancurkan fisik, hingga <span class="text-gold-primary">Anugerah Hera</span> yang memberikan perlindungan mutlak. Deck Anda adalah cerminan gaya bermain Anda.
+                    </p>
+                    
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center text-gold-light">
+                            <span class="w-2 h-2 bg-gold-primary rounded-full mr-3"></span>
+                            30+ Kombinasi Kartu Unik
+                        </li>
+                        <li class="flex items-center text-gold-light">
+                            <span class="w-2 h-2 bg-accent rounded-full mr-3"></span>
+                            Efek Status: Poison, Def Break, Stun
+                        </li>
+                        <li class="flex items-center text-gold-light">
+                            <span class="w-2 h-2 bg-blue-400 rounded-full mr-3"></span>
+                            Soal Kuis Dinamis (SD Kelas 1-6)
+                        </li>
+                    </ul>
 
-                                    <label class="group relative cursor-pointer">
-                                        <input type="radio" name="gameMode" value="2000" checked class="peer sr-only game-mode-radio">
-                                        <div class="flex flex-col items-center justify-center p-2 border border-[#CE9927]/20 bg-[#1a1a1a] rounded-lg transition-all duration-300 peer-checked:border-[#CE9927] peer-checked:bg-[#CE9927]/10 group-hover:border-[#CE9927]/60">
-                                            <div class="absolute top-1 right-1 w-1 h-1 rounded-full border border-[#CE9927] peer-checked:bg-[#CE9927]"></div>
-                                            <span class="text-[9px] text-[#CE9927]/60 uppercase tracking-tighter font-medium">Normal</span>
-                                            <span class="text-white font-bold text-base group-hover:text-[#CE9927] transition-colors">2000</span>
-                                            <span class="text-[9px] text-gray-500 italic">HP</span>
-                                        </div>
-                                    </label>
+                    <a href="scene.html" class="text-white border-b border-gold-primary pb-1 hover:text-gold-primary transition-colors">Lihat Semua Kartu →</a>
+                </div>
 
-                                    <label class="group relative cursor-pointer">
-                                        <input type="radio" name="gameMode" value="4000" class="peer sr-only game-mode-radio">
-                                        <div class="flex flex-col items-center justify-center p-2 border border-[#CE9927]/20 bg-[#1a1a1a] rounded-lg transition-all duration-300 peer-checked:border-[#CE9927] peer-checked:bg-[#CE9927]/10 group-hover:border-[#CE9927]/60">
-                                            <div class="absolute top-1 right-1 w-1 h-1 rounded-full border border-[#CE9927] peer-checked:bg-[#CE9927]"></div>
-                                            <span class="text-[9px] text-[#CE9927]/60 uppercase tracking-tighter font-medium">Long</span>
-                                            <span class="text-white font-bold text-base group-hover:text-[#CE9927] transition-colors">4000</span>
-                                            <span class="text-[9px] text-gray-500 italic">HP</span>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- PILIH KELAS -->
-                            <div class="mb-4">
-                                <div class="flex items-center space-x-2 mb-3">
-                                    <p class="text-[#CE9927] font-bold tracking-widest uppercase text-xs">Pilih Kelas</p>
-                                    <div class="h-[1px] flex-grow bg-gradient-to-r from-[#CE9927]/50 to-transparent"></div>
-                                </div>
-
-                                <div class="grid grid-cols-3 gap-2">
-                                    ${[1, 2, 3, 4, 5, 6]
-                                      .map(
-                                        (c) => `
-                                        <label class="group relative cursor-pointer">
-                                            <input type="checkbox" value="${c}" checked class="peer sr-only">
-                                            <div class="flex flex-col items-center justify-center p-2 border border-[#CE9927]/20 bg-[#1a1a1a] rounded-lg transition-all duration-300 peer-checked:border-[#CE9927] peer-checked:bg-[#CE9927]/10 group-hover:border-[#CE9927]/60">
-                                                <div class="absolute top-1 right-1 w-1 h-1 rounded-full border border-[#CE9927] peer-checked:bg-[#CE9927]"></div>
-                                                <span class="text-[9px] text-[#CE9927]/60 uppercase tracking-tighter font-medium">Opsi</span>
-                                                <span class="text-white font-bold text-base group-hover:text-[#CE9927] transition-colors">${c}</span>
-                                                <span class="text-[9px] text-gray-500 italic">Kelas</span>
-                                            </div>
-                                        </label>
-                                    `
-                                      )
-                                      .join("")}
-                                </div>
-                            </div>
-
-                            <button onclick="game.startGame()" class="w-full bg-[#CE9927] hover:bg-[#b0801f] text-black font-bold py-2.5 rounded text-base transition-transform active:scale-95">MULAI PERTARUNGAN</button>
+                <div class="md:w-1/2 flex justify-center perspective-1000">
+                    <div class="relative w-full max-w-md h-96 flex justify-center items-center">
+                        <div class="absolute left-0 transform -rotate-6 scale-90 card-item">
+                            <img src="assets/card/2.png" class="w-48 rounded-lg shadow-xl border border-gold-primary" onerror="this.src='https://via.placeholder.com/200x300/1a1a1a/ce9927?text=Anugerah+Hera'">
+                        </div>
+                        <div class="absolute right-0 transform rotate-6 scale-90 card-item">
+                            <img src="assets/card/6.png" class="w-48 rounded-lg shadow-xl border border-gold-primary" onerror="this.src='https://via.placeholder.com/200x300/1a1a1a/ce9927?text=Serangan+Zeus'">
+                        </div>
+                        <div class="absolute z-20 card-item">
+                            <img src="assets/card/1.png" class="w-56 rounded-lg shadow-2xl border-2 border-gold-primary" onerror="this.src='https://via.placeholder.com/220x330/1a1a1a/ce9927?text=Tendangan+T'">
                         </div>
                     </div>
-                `;
-
-          // Tambahkan event listener untuk radio buttons
-          setTimeout(() => {
-            const radios = document.querySelectorAll(".game-mode-radio");
-            radios.forEach((radio) => {
-              radio.addEventListener("change", (e) => {
-                CONFIG.MAX_HP = parseInt(e.target.value);
-                console.log("CONFIG.MAX_HP changed to:", CONFIG.MAX_HP);
-              });
-            });
-          }, 0);
-        }
-
-        renderTransition() {
-          const p = this.getCurrentPlayer();
-          this.app.innerHTML = `
-                    <div class="flex flex-col items-center justify-center h-full bg-black z-50">
-                        <h2 class="text-4xl text-[#CE9927] mb-2">GILIRAN</h2>
-                        <h1 class="text-6xl font-bold text-white mb-8">${p.name.toUpperCase()}</h1>
-                        <p class="text-gray-400 mb-8 animate-pulse">Jawablah kuis dengan hati-hati...</p>
-                        <button onclick="game.startQuiz()" class="px-8 py-3 bg-[#CE9927] text-black font-bold rounded hover:bg-white transition">SAYA SIAP</button>
-                    </div>
-                `;
-        }
-
-        renderQuiz() {
-          const q = this.currentQuestion;
-          // Shuffle answers
-          let options = [
-            { t: q.benar, c: true },
-            { t: q.salah1, c: false },
-            { t: q.salah2, c: false },
-            { t: q.salah3, c: false },
-          ].sort(() => Math.random() - 0.5);
-
-          this.app.innerHTML = `
-                    <div class="flex flex-col items-center justify-center h-full p-8 max-w-4xl mx-auto w-full">
-                        <div class="w-full bg-gray-800 h-4 rounded-full mb-6 border border-[#CE9927] overflow-hidden">
-                            <div id="quiz-timer-bar" class="h-full bg-[#CE9927] transition-all duration-1000" style="width: 100%"></div>
-                        </div>
-                        
-                        <div class="bg-black/90 p-8 border-2 border-[#CE9927] rounded-lg w-full mb-6">
-                            <h3 class="text-xl text-[#CE9927] mb-2">Soal Kelas ${
-                              q.kelas
-                            }</h3>
-                            <div class="text-3xl text-white font-serif leading-relaxed" id="latex-question">${
-                              q.soal
-                            }</div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                            ${options
-                              .map(
-                                (opt, i) => `
-                                <button onclick="game.answerQuiz(${opt.c})" class="p-6 bg-[#1a1a1a] border border-[#CE9927] hover:bg-[#CE9927] hover:text-black transition text-xl rounded text-left" id="opt-${i}">${opt.t}</button>
-                            `
-                              )
-                              .join("")}
-                        </div>
-                    </div>
-                `;
-
-          // Render LaTeX
-          renderMathInElement(document.body, {
-            delimiters: [{ left: "$", right: "$", display: false }],
-          });
-
-          // Start Timer Logic
-          this.quizStartTime = Date.now();
-          this.quizTimerInterval = setInterval(() => {
-            const elapsed = (Date.now() - this.quizStartTime) / 1000;
-            const remaining = CONFIG.QUIZ_TIME - elapsed;
-            const bar = document.getElementById("quiz-timer-bar");
-            if (bar)
-              bar.style.width = `${(remaining / CONFIG.QUIZ_TIME) * 100}%`;
-
-            if (remaining <= 0) {
-              this.answerQuiz(false); // Timeout
-            }
-          }, 1000);
-        }
-
-        renderBattle() {
-          const p1 = this.players[0];
-          const p2 = this.players[1];
-          const active = this.getCurrentPlayer();
-
-          this.app.innerHTML = `
-          <div class="fixed top-4 left-4 z-[100] pointer-events-auto">
-              <a href="index.html" class="flex items-center gap-2 px-4 py-2 bg-black/60 hover:bg-red-800 text-white border border-[#CE9927] rounded-lg transition-all duration-300 group">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                  </svg>
-                  <span class="font-bold text-sm tracking-widest">GO BACK</span>
-              </a>
-          </div>
-          <div class="char left">
-              <img id="char-left-img" src="assets/player1/persiapan.png" alt="">
-          </div>
-          <div class="char right">
-              <img id="char-right-img" src="assets/player2/persiapan.png" alt="">
-          </div>
-
-          <div class="flex flex-col h-full justify-between relative pointer-events-none">
-              
-              <div class="flex-1 flex items-center justify-center relative">
-                  <div id="damage-text" class="absolute text-6xl font-bold text-red-500 hidden z-50 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]"></div>
-                  ${
-                    this.turnIndex === 1
-                      ? '<div class="text-4xl text-white/10 font-bold rotate-180">VS</div>'
-                      : '<div class="text-4xl text-white/10 font-bold">VS</div>'
-                  }
-              </div>
-
-              <div class="w-full flex justify-center relative pointer-events-auto">
-                  
-                  <div class="absolute left-6 bottom-8 flex flex-col items-start z-10 ${this.turnIndex === 0 ? "opacity-100" : "opacity-60"}">
-                      <div class="flex items-center gap-4 mb-2">
-                          <img src="assets/player1/profile.png" class="w-16 h-16 rounded-full border-2 border-[#CE9927] object-cover bg-gray-800 shadow-xl" onerror="this.src='https://via.placeholder.com/64'">
-                          <div class="text-left">
-                              <h2 class="text-2xl font-bold text-[#CE9927]">${p1.name}</h2>
-                              <div class="text-xs text-gray-400">HP: ${p1.hp}/${p1.maxHP}</div>
-                              <div class="text-xs text-gray-400">ATK: ${p1.getDmg()} | DEF: ${p1.getDef()}</div>
-                              <div class="flex gap-1 mt-1 justify-start">
-                                  ${this.renderEnergyDots(p1.energy)}
-                              </div>
-                          </div>
-                      </div>
-                      <div class="w-64 h-4 bg-gray-800 rounded-full border border-gray-600 overflow-hidden shadow-lg">
-                          <div class="h-full bg-red-600 transition-all duration-500" style="width: ${(p1.hp / p1.maxHP) * 100}%"></div>
-                      </div>
-                      <div class="flex gap-2 mt-1 text-xs text-red-400 font-bold bg-black/50 px-2 rounded">
-                          ${p1.poison > 0 ? `<span>☠️ ${p1.poison}</span>` : ""}
-                          ${p1.defBroken > 0 ? `<span>🛡️🚫</span>` : ""}
-                      </div>
-                  </div>
-
-                  <div class="w-full md:w-1/2 bg-black/80 border-t-2 border-[#CE9927] p-4 flex flex-col items-center z-20">
-                      <div class="flex gap-4 no-scrollbar pb-2 w-full justify-center" id="hand-container">
-                          ${active.hand.map((card, idx) => `
-                              <div onclick="${active.energy >= card.energi ? `game.playCard(${idx})` : ""}" 
-                                  class="flex-shrink-0 w-40 h-56 rounded-lg overflow-hidden relative transition-all duration-300 z-30 hover:z-[100]
-                                  ${active.energy >= card.energi 
-                                      ? "cursor-pointer hover:-translate-y-6 hover:shadow-[0_20px_40px_rgba(206,153,39,0.5)] ring-2 ring-[#CE9927]" 
-                                      : "opacity-40 grayscale cursor-not-allowed ring-2 ring-gray-600"}">
-                                  
-                                  <img src="assets/card/${card.id}.png" alt="${card["nama-kartu"]}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/160x224?text=Card+Image'">
-                                  <div class="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none"></div>
-                              </div>
-                          `).join("")}
-                      </div>
-                      <button onclick="game.endTurn()" class="mt-4 px-8 py-2 bg-[#CE9927] text-black border border-[#E4AB2E] font-bold hover:bg-[#E4AB2E] rounded">AKHIRI GILIRAN</button>
-                  </div>
-
-                  <div class="absolute right-6 bottom-8 flex flex-col items-end z-10 ${this.turnIndex === 1 ? "opacity-100" : "opacity-60"}">
-                      <div class="flex flex-row-reverse items-center gap-4 mb-2">
-                          <img src="assets/player2/profile.png" class="w-16 h-16 rounded-full border-2 border-red-500 object-cover bg-gray-800 shadow-xl" onerror="this.src='https://via.placeholder.com/64'">
-                          <div class="text-right">
-                              <h2 class="text-2xl font-bold text-red-500">${p2.name}</h2>
-                              <div class="text-xs text-gray-400">HP: ${p2.hp}/${p2.maxHP}</div>
-                              <div class="text-xs text-gray-400">ATK: ${p2.getDmg()} | DEF: ${p2.getDef()}</div>
-                              <div class="flex gap-1 mt-1 justify-end">
-                                  ${this.renderEnergyDots(p2.energy)}
-                              </div>
-                          </div>
-                      </div>
-                      <div class="w-64 h-4 bg-gray-800 rounded-full border border-gray-600 overflow-hidden shadow-lg">
-                          <div class="h-full bg-red-600 transition-all duration-500" style="width: ${(p2.hp / p2.maxHP) * 100}%"></div>
-                      </div>
-                      <div class="flex gap-2 mt-1 text-xs text-red-400 font-bold bg-black/50 px-2 rounded">
-                          ${p2.poison > 0 ? `<span>☠️ ${p2.poison}</span>` : ""}
-                          ${p2.defBroken > 0 ? `<span>🛡️🚫</span>` : ""}
-                      </div>
-                  </div>
-
-              </div>
-          </div>
-      `;
-        }
-
-        renderEnergyDots(count) {
-          let html = "";
-          for (let i = 0; i < CONFIG.MAX_ENERGY; i++) {
-            html += `<div class="w-3 h-3 rounded-full border border-[#CE9927] ${
-              i < count ? "bg-[#CE9927]" : "bg-transparent"
-            }"></div>`;
-          }
-          return html;
-        }
-
-        renderGameOver(winner) {
-          this.app.innerHTML = `
-                    <div class="flex flex-col items-center justify-center h-full bg-black/95 text-center p-8">
-                        <h1 class="text-6xl font-bold text-[#CE9927] mb-4">GAME OVER</h1>
-                        ${
-                          winner === "DRAW"
-                            ? '<h2 class="text-4xl text-white">SERI!</h2><p>Kedua pemain jatuh.</p>'
-                            : `<h2 class="text-4xl text-white">PEMENANG: ${winner.name}</h2>`
-                        }
-                        <button onclick="location.reload()" class="mt-10 px-8 py-3 bg-[#CE9927] text-black font-bold rounded hover:bg-white transition">MAIN LAGI</button>
-                    </div>
-                `;
-        }
-
-        // --- LOGIC ---
-
-        startGame() {
-          const audio = document.getElementById("bgm");
-          audio.volume = 1;
-          audio.play();
-
-          const p1n = document.getElementById("p1Name").value || "Player 1";
-          const p2n = document.getElementById("p2Name").value || "Player 2";
-
-          // Get selected game mode
-          const selectedMode = document.querySelector(
-            'input[name="gameMode"]:checked'
-          );
-          const maxHP = selectedMode ? parseInt(selectedMode.value) : 2000;
-
-          // Get checkboxes
-          const checkboxes = document.querySelectorAll(
-            'input[type="checkbox"]:checked'
-          );
-          const classes = Array.from(checkboxes).map((c) => c.value);
-
-          if (classes.length === 0) {
-            alert("Pilih minimal 1 kelas!");
-            return;
-          }
-
-          // Filter Deck
-          this.activeDeck = DB.deck.filter((q) => classes.includes(q.kelas));
-          if (this.activeDeck.length === 0) {
-            alert(
-              "Tidak ada soal di kelas yang dipilih! (Demo only has specific classes)"
-            );
-            return;
-          }
-
-          // Init Players dengan HP sesuai mode yang dipilih
-          this.players = [new Player(p1n, 1, maxHP), new Player(p2n, 2, maxHP)];
-          this.turnIndex = 0;
-
-          this.startTurnTransition();
-        }
-
-        startTurnTransition() {
-          this.renderTransition();
-        }
-
-        startQuiz() {
-          // Prepare Turn Logic
-          const p = this.getCurrentPlayer();
-          p.startTurnLogic(); // Apply poison, decay buffs
-
-          // Check death by poison
-          if (p.hp <= 0) {
-            this.checkWinCondition();
-            return;
-          }
-
-          // Pick Question
-          if (this.activeDeck.length === 0) {
-            // Refill logic or simple recycle for demo
-            this.activeDeck = [...DB.deck]; // simple recycle
-          }
-          const idx = Math.floor(Math.random() * this.activeDeck.length);
-          this.currentQuestion = this.activeDeck.splice(idx, 1)[0];
-
-          this.renderQuiz();
-        }
-
-        answerQuiz(isCorrect) {
-          clearInterval(this.quizTimerInterval);
-          const elapsed = (Date.now() - this.quizStartTime) / 1000;
-
-          let energy = 0;
-          if (isCorrect) {
-            if (elapsed < 10) energy = 5;
-            else if (elapsed < 20) energy = 4;
-            else if (elapsed < 30) energy = 3;
-            else if (elapsed < 40) energy = 2;
-            else if (elapsed <= 60) energy = 1;
-          }
-
-          this.getCurrentPlayer().addEnergy(energy);
-
-          // Draw 3 cards
-          this.getCurrentPlayer().drawCards(3);
-
-          this.state = "BATTLE";
-          this.renderBattle();
-        }
-
-        playCard(handIndex) {
-          const player = this.getCurrentPlayer();
-          const enemy = this.getOpponent();
-          const card = player.hand[handIndex];
-
-          if (player.energy < card.energi) return; // Not enough energy
-
-          const charLeft = document.getElementById('char-left-img');
-          const charRight = document.getElementById('char-right-img');
-
-          console.log(charLeft)
-
-          // A. LOGIKA PERUBAHAN GAMBAR
-          if (this.turnIndex === 0) { 
-              // Giliran Player 1 menyerang
-              charLeft.src = "assets/player1/serang.png";
-              charRight.src = "assets/player2/sakit.png"; 
-          } else { 
-              // Giliran Player 2 menyerang
-              charLeft.src = "assets/player1/sakit.png";
-              charRight.src = "assets/player2/serang.png";
-          }
-
-          // Cost
-          player.energy -= parseInt(card.energi);
-
-          // Effect
-          this.applyCardEffect(card, player, enemy);
-
-          // Discard used card
-          player.hand.splice(handIndex, 1);
-
-          // Check Win
-          if (this.checkWinCondition()) return;
-
-          // Re-render
-          setTimeout(() => {
-              this.renderBattle();
-          }, 950);
-        }
-
-        applyCardEffect(card, user, target) {
-          let damage = 0;
-          let msg = "";
-
-          switch (card.id) {
-            case "1": // Tendangan T
-              damage = user.getDmg() * 3;
-              this.dealDamage(target, damage, "physical");
-              break;
-            case "2": // Anugerah Hera (Target can't damage next turn)
-              // Logika: User mendapat buff "Invulnerable" ATAU Target mendapat debuff "CantAttack"?
-              // Deskripsi: "Lawan tidak dapat memberikan damage".
-              // Cara termudah: Set flag pada User 'protected'
-              user.isProtected = true;
-              msg = "Terlindungi!";
-              break;
-            case "3": // Push up
-              user.bonusDmg += 10;
-              msg = "DMG +10";
-              break;
-            case "4": // Uppercut
-              damage = user.getDmg() * 2;
-              this.dealDamage(target, damage, "physical");
-              break;
-            case "5": // Kuda-kuda merpati
-              damage = user.getDmg() * 0.25;
-              this.dealDamage(target, damage, "physical");
-              user.bonusDef += user.baseDef * 2; // Assuming permanent for match or 1 turn? Usually temporary but prompt implies simple stat. Let's make it permanent boost based on text "mendapatkan".
-              msg = "DEF UP!";
-              break;
-            case "6": // Serangan Zeus
-              // Magic dmg * 0.5 * Energy Sisa (Current energy AFTER cost)
-              // Note: Energy has already been deducted in playCard.
-              const hits = user.energy;
-              damage = CONFIG.MAGIC_DMG * 0.5 * hits;
-              this.dealDamage(target, damage, "magic");
-              break;
-            case "7": // Kartu Besi
-              user.baseDef += 5;
-              msg = "DEF +5";
-              break;
-            case "8": // Pukulan Lurus
-              damage = user.getDmg();
-              this.dealDamage(target, damage, "physical");
-              break;
-            case "9": // Tenung Merah
-              const reduction = 5 * user.energy;
-              target.dmgReduction += reduction;
-              msg = `Enemy DMG -${reduction}`;
-              break;
-            case "10": // Keris Sakti
-              const poisonAmt = user.getDmg() * 0.5;
-              target.poison += poisonAmt;
-              this.dealDamage(target, 0, "physical"); // Just to trigger hit visual
-              msg = "POISONED!";
-              break;
-            case "11": // Free Shuffle
-              user.drawCards(3); // Redraw
-              break;
-            case "12": // Verbal Bullying
-              target.defBroken = 3;
-              msg = "DEF BROKEN!";
-              break;
-          }
-
-          if (msg) this.showFloatingText(msg);
-        }
-
-        dealDamage(target, amount, type) {
-          if (target.isProtected) {
-            this.showFloatingText("BLOCKED BY HERA!");
-            return;
-          }
-
-          let finalDmg = amount;
-
-          if (type === "physical") {
-            if (target.defBroken > 0) {
-              // Def ignored
-            } else {
-              finalDmg -= target.getDef();
-            }
-          }
-          // Magic ignores def usually in this simple logic unless specified
-
-          if (finalDmg < 0) finalDmg = 0;
-
-          target.hp -= finalDmg;
-          if (target.hp < 0) target.hp = 0;
-
-          // Visual Shake
-          document.getElementById("app").classList.add("animate-shake");
-          setTimeout(
-            () =>
-              document.getElementById("app").classList.remove("animate-shake"),
-            500
-          );
-
-          // Show Damage Number
-          const dmgText = document.getElementById("damage-text");
-          dmgText.innerText = `-${Math.floor(finalDmg)}`;
-          dmgText.classList.remove("hidden");
-          setTimeout(() => dmgText.classList.add("hidden"), 1000);
-        }
-
-        showFloatingText(text) {
-          const dmgText = document.getElementById("damage-text");
-          
-          dmgText.classList.remove("hidden", "animate__flipInX", "animate__flipOutX");
-          
-          dmgText.innerText = text;
-          dmgText.style.color = "#CE9927";
-          
-          dmgText.style.setProperty('--animate-duration', '0.3s');
-          dmgText.classList.add("animate__animated", "animate__flipInX");
-
-          setTimeout(() => {
-              dmgText.classList.remove("animate__flipInX");
-              dmgText.classList.add("animate__flipOutX");
-
-              setTimeout(() => {
-                  dmgText.classList.add("hidden");
-                  dmgText.style.color = "red"; 
-              }, 200); 
-              
-          }, 800); 
-      }
-
-        endTurn() {
-          this.turnIndex = this.turnIndex === 0 ? 1 : 0;
-          this.startTurnTransition();
-        }
-
-        checkWinCondition() {
-          const p1 = this.players[0];
-          const p2 = this.players[1];
-
-          if (p1.hp <= 0 && p2.hp <= 0) {
-            this.renderGameOver("DRAW");
-            return true;
-          } else if (p1.hp <= 0) {
-            this.renderGameOver(p2);
-            return true;
-          } else if (p2.hp <= 0) {
-            this.renderGameOver(p1);
-            return true;
-          }
-          return false;
-        }
-
-        getCurrentPlayer() {
-          return this.players[this.turnIndex];
-        }
-        getOpponent() {
-          return this.players[this.turnIndex === 0 ? 1 : 0];
-        }
-      }
-
-      /**
-       * PLAYER ENTITY
-       */
-      class Player {
-        constructor(name, id) {
-          this.name = name;
-          this.id = id;
-          this.maxHP = CONFIG.MAX_HP; // TAMBAHKAN INI
-          this.hp = CONFIG.MAX_HP; // UBAH DARI CONFIG.MAX_HP
-          this.energy = 0;
-          this.hand = [];
-
-          // Stats
-          this.baseDmg = CONFIG.BASE_DMG;
-          this.baseDef = CONFIG.BASE_DEF;
-          this.bonusDmg = 0;
-          this.bonusDef = 0; // From cards like Kartu Besi
-          this.dmgReduction = 0; // Negative damage from Tenung Merah
-
-          // Status
-          this.poison = 0;
-          this.defBroken = 0; // Turn counter
-          this.isProtected = false; // Hera
-        }
-
-        getDmg() {
-          let d = this.baseDmg + this.bonusDmg - this.dmgReduction;
-          return d < 0 ? 0 : d;
-        }
-
-        getDef() {
-          return this.baseDef + this.bonusDef;
-        }
-
-        addEnergy(amount) {
-          this.energy += amount;
-          if (this.energy > CONFIG.MAX_ENERGY) this.energy = CONFIG.MAX_ENERGY;
-        }
-
-        drawCards(count) {
-          this.hand = [];
-          for (let i = 0; i < count; i++) {
-            const r = DB.cards[Math.floor(Math.random() * DB.cards.length)];
-            this.hand.push(r);
-          }
-        }
-
-        startTurnLogic() {
-          if (this.poison > 0) {
-            this.hp -= this.poison;
-            this.poison -= CONFIG.POISON_DECAY;
-            if (this.poison < 0) this.poison = 0;
-          }
-
-          if (this.defBroken > 0) this.defBroken--;
-
-          this.isProtected = false;
-        }
-      }
-
-      const game = new Game();
-    </script>
-  </body>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 bg-gradient-to-t from-black to-surface text-center px-4 border-t border-gold-primary">
+        <h2 class="text-3xl md:text-5xl font-bold text-white mb-6">Siap Menguji Kecerdasanmu?</h2>
+        <p class="text-gray-400 mb-8 max-w-2xl mx-auto">
+            Jangan biarkan lawanmu mengungguli logikamu. Masuk ke arena sekarang dan buktikan siapa yang terkuat.
+        </p>
+        <a href="scene.html" class="inline-block px-12 py-4 bg-gold-primary text-black font-bold text-xl rounded hover:bg-white transition-all shadow-glow hover:scale-105">
+            DUEL SEKARANG
+        </a>
+        <p class="mt-12 text-gray-600 text-sm">© 2026 Scientia. All Rights Reserved.</p>
+    </section>
+
+</body>
 </html>
