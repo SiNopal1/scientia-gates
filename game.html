@@ -648,7 +648,7 @@
             case "5": // Kuda-kuda merpati
               damage = user.getDmg() * 0.25;
               this.dealDamage(target, damage, "physical");
-              user.bonusDef += user.baseDef * 2; // Assuming permanent for match or 1 turn? Usually temporary but prompt implies simple stat. Let's make it permanent boost based on text "mendapatkan".
+              user.bonusDef += 10; // Assuming permanent for match or 1 turn? Usually temporary but prompt implies simple stat. Let's make it permanent boost based on text "mendapatkan".
               msg = "DEF UP!";
               break;
             case "6": // Serangan Zeus
