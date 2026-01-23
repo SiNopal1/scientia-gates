@@ -35,6 +35,7 @@
         background-color: #050505;
         color: #ddc48f;
         user-select: none;
+        overflow-y: scroll;
       }
 
       /* Custom Colors based on Prompt */
@@ -127,7 +128,7 @@
       }
     </style>
   </head>
-  <body class="overflow-hidden w-screen h-screen relative">
+  <body class="w-screen h-screen relative">
     <div class="absolute inset-0 z-0">
       <img
         src="assets/background.png"
@@ -204,87 +205,211 @@
         // --- RENDERERS ---
 
         renderMenu() {
-          this.app.innerHTML = `
-                    <div class="flex flex-col items-center justify-center min-h-screen p-2 animate-fade-in">
-                        <img src="assets/scientia.png" width="180" alt="Scientia Logo" onerror="this.src='https://via.placeholder.com/180x60?text=Scientia'" class="mb-3">
-                        
-                        <div class="bg-black/80 p-4 border-2 border-[#CE9927] rounded-lg w-full max-w-md">
-                            <!-- Input Nama -->
-                            <div class="space-y-2 mb-4">
-                                <input id="p1Name" type="text" placeholder="Nama Pemain 1 (Kiri)" class="w-full bg-[#1a1a1a] text-[#DDC48F] border border-[#CE9927] p-2 text-sm rounded focus:outline-none focus:ring-2 focus:ring-[#CE9927]">
-                                <input id="p2Name" type="text" placeholder="Nama Pemain 2 (Kanan)" class="w-full bg-[#1a1a1a] text-[#DDC48F] border border-[#CE9927] p-2 text-sm rounded focus:outline-none focus:ring-2 focus:ring-[#CE9927]">
-                            </div>
-                            
-                            <!-- MODE GAME -->
-                            <div class="mb-4">
-                                <div class="flex items-center space-x-2 mb-3">
-                                    <p class="text-[#CE9927] font-bold tracking-widest uppercase text-xs">Mode Permainan</p>
-                                    <div class="h-[1px] flex-grow bg-gradient-to-r from-[#CE9927]/50 to-transparent"></div>
+        this.app.innerHTML = `
+            <div class="fixed inset-0 z-0 pointer-events-none">
+                <img src="assets/background.png" class="w-full h-full object-cover opacity-20" onerror="this.src='https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=2690&auto=format&fit=crop'">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/90 to-transparent"></div>
+            </div>
+
+            <div class="relative z-10 flex flex-col items-center justify-center min-h-screen p-2 animate-fade-in">
+                
+                <img src="assets/scientia.png" width="200" alt="Scientia Logo" onerror="this.src='https://via.placeholder.com/200x70?text=Scientia'" class="mb-6 drop-shadow-[0_0_10px_rgba(206,153,39,0.5)]">
+                
+                <div class="bg-black/80 p-6 border-2 border-[#CE9927] rounded-lg w-full max-w-md shadow-[0_0_15px_rgba(206,153,39,0.2)] backdrop-blur-sm">
+                    
+                    <div class="space-y-3 mb-6">
+                        <input id="p1Name" type="text" placeholder="Nama Pemain 1 (Kiri)" class="w-full bg-[#1a1a1a] text-[#DDC48F] border border-[#CE9927]/50 p-2.5 text-sm rounded focus:outline-none focus:border-[#CE9927] focus:ring-1 focus:ring-[#CE9927] transition-all">
+                        <input id="p2Name" type="text" placeholder="Nama Pemain 2 (Kanan)" class="w-full bg-[#1a1a1a] text-[#DDC48F] border border-[#CE9927]/50 p-2.5 text-sm rounded focus:outline-none focus:border-[#CE9927] focus:ring-1 focus:ring-[#CE9927] transition-all">
+                    </div>
+                    
+                    <div class="mb-5">
+                        <div class="flex items-center space-x-2 mb-3">
+                            <p class="text-[#CE9927] font-bold tracking-widest uppercase text-xs">Mode Permainan</p>
+                            <div class="h-[1px] flex-grow bg-gradient-to-r from-[#CE9927]/50 to-transparent"></div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2">
+                            <label class="group relative cursor-pointer">
+                                <input type="radio" name="gameMode" value="1000" class="peer sr-only game-mode-radio">
+                                <div class="flex flex-col items-center justify-center p-2 border border-[#CE9927]/20 bg-[#1a1a1a] rounded-lg transition-all duration-300 peer-checked:border-[#CE9927] peer-checked:bg-[#CE9927]/10 group-hover:border-[#CE9927]/60 h-full">
+                                    <div class="absolute top-1 right-1 w-1 h-1 rounded-full border border-[#CE9927] peer-checked:bg-[#CE9927]"></div>
+                                    <span class="text-[9px] text-[#CE9927]/60 uppercase tracking-tighter font-medium">Quick</span>
+                                    <span class="text-white font-bold text-base group-hover:text-[#CE9927] transition-colors">1000</span>
+                                    <span class="text-[9px] text-gray-500 italic">HP</span>
                                 </div>
+                            </label>
 
-                                <div class="grid grid-cols-3 gap-2 mb-4">
-                                    <label class="group relative cursor-pointer">
-                                        <input type="radio" name="gameMode" value="1000" class="peer sr-only game-mode-radio">
-                                        <div class="flex flex-col items-center justify-center p-2 border border-[#CE9927]/20 bg-[#1a1a1a] rounded-lg transition-all duration-300 peer-checked:border-[#CE9927] peer-checked:bg-[#CE9927]/10 group-hover:border-[#CE9927]/60">
-                                            <div class="absolute top-1 right-1 w-1 h-1 rounded-full border border-[#CE9927] peer-checked:bg-[#CE9927]"></div>
-                                            <span class="text-[9px] text-[#CE9927]/60 uppercase tracking-tighter font-medium">Quick</span>
-                                            <span class="text-white font-bold text-base group-hover:text-[#CE9927] transition-colors">1000</span>
-                                            <span class="text-[9px] text-gray-500 italic">HP</span>
-                                        </div>
-                                    </label>
-
-                                    <label class="group relative cursor-pointer">
-                                        <input type="radio" name="gameMode" value="2000" checked class="peer sr-only game-mode-radio">
-                                        <div class="flex flex-col items-center justify-center p-2 border border-[#CE9927]/20 bg-[#1a1a1a] rounded-lg transition-all duration-300 peer-checked:border-[#CE9927] peer-checked:bg-[#CE9927]/10 group-hover:border-[#CE9927]/60">
-                                            <div class="absolute top-1 right-1 w-1 h-1 rounded-full border border-[#CE9927] peer-checked:bg-[#CE9927]"></div>
-                                            <span class="text-[9px] text-[#CE9927]/60 uppercase tracking-tighter font-medium">Normal</span>
-                                            <span class="text-white font-bold text-base group-hover:text-[#CE9927] transition-colors">2000</span>
-                                            <span class="text-[9px] text-gray-500 italic">HP</span>
-                                        </div>
-                                    </label>
-
-                                    <label class="group relative cursor-pointer">
-                                        <input type="radio" name="gameMode" value="4000" class="peer sr-only game-mode-radio">
-                                        <div class="flex flex-col items-center justify-center p-2 border border-[#CE9927]/20 bg-[#1a1a1a] rounded-lg transition-all duration-300 peer-checked:border-[#CE9927] peer-checked:bg-[#CE9927]/10 group-hover:border-[#CE9927]/60">
-                                            <div class="absolute top-1 right-1 w-1 h-1 rounded-full border border-[#CE9927] peer-checked:bg-[#CE9927]"></div>
-                                            <span class="text-[9px] text-[#CE9927]/60 uppercase tracking-tighter font-medium">Long</span>
-                                            <span class="text-white font-bold text-base group-hover:text-[#CE9927] transition-colors">4000</span>
-                                            <span class="text-[9px] text-gray-500 italic">HP</span>
-                                        </div>
-                                    </label>
+                            <label class="group relative cursor-pointer">
+                                <input type="radio" name="gameMode" value="2000" checked class="peer sr-only game-mode-radio">
+                                <div class="flex flex-col items-center justify-center p-2 border border-[#CE9927]/20 bg-[#1a1a1a] rounded-lg transition-all duration-300 peer-checked:border-[#CE9927] peer-checked:bg-[#CE9927]/10 group-hover:border-[#CE9927]/60 h-full">
+                                    <div class="absolute top-1 right-1 w-1 h-1 rounded-full border border-[#CE9927] peer-checked:bg-[#CE9927]"></div>
+                                    <span class="text-[9px] text-[#CE9927]/60 uppercase tracking-tighter font-medium">Normal</span>
+                                    <span class="text-white font-bold text-base group-hover:text-[#CE9927] transition-colors">2000</span>
+                                    <span class="text-[9px] text-gray-500 italic">HP</span>
                                 </div>
-                            </div>
+                            </label>
 
-                            <!-- PILIH KELAS -->
-                            <div class="mb-4">
-                                <div class="flex items-center space-x-2 mb-3">
-                                    <p class="text-[#CE9927] font-bold tracking-widest uppercase text-xs">Pilih Kelas</p>
-                                    <div class="h-[1px] flex-grow bg-gradient-to-r from-[#CE9927]/50 to-transparent"></div>
+                            <label class="group relative cursor-pointer">
+                                <input type="radio" name="gameMode" value="4000" class="peer sr-only game-mode-radio">
+                                <div class="flex flex-col items-center justify-center p-2 border border-[#CE9927]/20 bg-[#1a1a1a] rounded-lg transition-all duration-300 peer-checked:border-[#CE9927] peer-checked:bg-[#CE9927]/10 group-hover:border-[#CE9927]/60 h-full">
+                                    <div class="absolute top-1 right-1 w-1 h-1 rounded-full border border-[#CE9927] peer-checked:bg-[#CE9927]"></div>
+                                    <span class="text-[9px] text-[#CE9927]/60 uppercase tracking-tighter font-medium">Long</span>
+                                    <span class="text-white font-bold text-base group-hover:text-[#CE9927] transition-colors">4000</span>
+                                    <span class="text-[9px] text-gray-500 italic">HP</span>
                                 </div>
-
-                                <div class="grid grid-cols-3 gap-2">
-                                    ${[1, 2, 3, 4, 5, 6]
-                                      .map(
-                                        (c) => `
-                                        <label class="group relative cursor-pointer">
-                                            <input type="checkbox" value="${c}" checked class="peer sr-only">
-                                            <div class="flex flex-col items-center justify-center p-2 border border-[#CE9927]/20 bg-[#1a1a1a] rounded-lg transition-all duration-300 peer-checked:border-[#CE9927] peer-checked:bg-[#CE9927]/10 group-hover:border-[#CE9927]/60">
-                                                <div class="absolute top-1 right-1 w-1 h-1 rounded-full border border-[#CE9927] peer-checked:bg-[#CE9927]"></div>
-                                                <span class="text-[9px] text-[#CE9927]/60 uppercase tracking-tighter font-medium">Opsi</span>
-                                                <span class="text-white font-bold text-base group-hover:text-[#CE9927] transition-colors">${c}</span>
-                                                <span class="text-[9px] text-gray-500 italic">Kelas</span>
-                                            </div>
-                                        </label>
-                                    `
-                                      )
-                                      .join("")}
-                                </div>
-                            </div>
-
-                            <button onclick="game.startGame()" class="w-full bg-[#CE9927] hover:bg-[#b0801f] text-black font-bold py-2.5 rounded text-base transition-transform active:scale-95">MULAI PERTARUNGAN</button>
+                            </label>
                         </div>
                     </div>
-                `;
+
+                    <div class="mb-6">
+                        <div class="flex items-center space-x-2 mb-3">
+                            <p class="text-[#CE9927] font-bold tracking-widest uppercase text-xs">Pilih Kelas</p>
+                            <div class="h-[1px] flex-grow bg-gradient-to-r from-[#CE9927]/50 to-transparent"></div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2">
+                            ${[1, 2, 3, 4, 5, 6]
+                                .map(
+                                (c) => `
+                                <label class="group relative cursor-pointer">
+                                    <input type="checkbox" value="${c}" checked class="peer sr-only">
+                                    <div class="flex flex-col items-center justify-center p-2 border border-[#CE9927]/20 bg-[#1a1a1a] rounded-lg transition-all duration-300 peer-checked:border-[#CE9927] peer-checked:bg-[#CE9927]/10 group-hover:border-[#CE9927]/60">
+                                        <div class="absolute top-1 right-1 w-1 h-1 rounded-full border border-[#CE9927] peer-checked:bg-[#CE9927]"></div>
+                                        <span class="text-[9px] text-[#CE9927]/60 uppercase tracking-tighter font-medium">Opsi</span>
+                                        <span class="text-white font-bold text-base group-hover:text-[#CE9927] transition-colors">${c}</span>
+                                        <span class="text-[9px] text-gray-500 italic">Kelas</span>
+                                    </div>
+                                </label>
+                                `
+                                )
+                                .join("")}
+                        </div>
+                    </div>
+
+                    <button onclick="game.startGame()" class="w-full bg-[#CE9927] hover:bg-[#b0801f] text-black font-bold py-3 rounded text-base uppercase tracking-wider transition-all active:scale-95 shadow-[0_0_10px_rgba(206,153,39,0.3)]">
+                        MULAI PERTARUNGAN
+                    </button>
+                </div>
+            </div>
+
+            <div id="codex-start" class="relative z-10 container mx-auto px-4 py-24 max-w-5xl border-t border-[#CE9927]/20 bg-[#050505]/50 backdrop-blur-sm">
+
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-bold text-white mb-4">ARSENAL PENGETAHUAN</h2>
+                    <div class="h-[1px] w-24 bg-[#CE9927] mx-auto"></div>
+                    <p class="mt-4 text-lg text-gray-400 italic">"Pahami aturan main sebelum aturan itu menghancurkanmu."</p>
+                </div>
+
+                <section class="mb-20 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h3 class="text-2xl text-[#CE9927] font-bold mb-6 flex items-center gap-3">
+                            <span class="text-3xl">⚡</span> HUKUM ENERGI
+                        </h3>
+                        <p class="text-base text-gray-300 mb-6 leading-relaxed">
+                            Waktu adalah amunisi. Kecepatanmu menjawab soal menentukan seberapa mematikan seranganmu di giliran berikutnya.
+                        </p>
+                        
+                        <div class="border border-[#CE9927]/30 rounded-lg overflow-hidden bg-[#1A1A1A]/80">
+                            <div class="grid grid-cols-2 bg-[#CE9927]/10 p-3 border-b border-[#CE9927]/20 font-bold text-[#DDC48F] text-sm">
+                                <div>Waktu Menjawab</div>
+                                <div class="text-right">Energi</div>
+                            </div>
+                            <div class="grid grid-cols-2 p-3 border-b border-[#CE9927]/10 hover:bg-[#CE9927]/5 text-sm">
+                                <div class="text-green-400 font-bold">< 10 Detik</div>
+                                <div class="text-right font-bold text-white">5 (MAX) 🔥</div>
+                            </div>
+                            <div class="grid grid-cols-2 p-3 border-b border-[#CE9927]/10 hover:bg-[#CE9927]/5 text-sm">
+                                <div class="text-green-200">< 20 Detik</div>
+                                <div class="text-right text-gray-200">4</div>
+                            </div>
+                            <div class="grid grid-cols-2 p-3 border-b border-[#CE9927]/10 hover:bg-[#CE9927]/5 text-sm">
+                                <div class="text-yellow-200">< 30 Detik</div>
+                                <div class="text-right text-gray-300">3</div>
+                            </div>
+                            <div class="grid grid-cols-2 p-3 hover:bg-[#CE9927]/5 text-sm">
+                                <div class="text-red-400">> 40 Detik</div>
+                                <div class="text-right text-gray-500">1-2</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#1A1A1A] border-2 border-[#CE9927] p-6 rounded-xl relative shadow-[0_0_15px_rgba(206,153,39,0.15)]">
+                        <div class="absolute -top-3 -right-3 bg-[#CE9927] text-black font-bold px-3 py-1 rounded text-xs uppercase">Core Loop</div>
+                        <ul class="space-y-6">
+                            <li class="flex items-start gap-4">
+                                <div class="bg-gray-800 p-2 rounded-full border border-gray-600">🧠</div>
+                                <div>
+                                    <h4 class="font-bold text-[#DDC48F]">1. Fase Intelektual</h4>
+                                    <p class="text-xs text-gray-400">Jawab soal. Salah = 0 Energi.</p>
+                                </div>
+                            </li>
+                            <li class="flex justify-center py-0">
+                                <div class="h-6 w-[1px] bg-[#CE9927]/50"></div>
+                            </li>
+                            <li class="flex items-start gap-4">
+                                <div class="bg-[#CE9927]/20 p-2 rounded-full border border-[#CE9927]">⚡</div>
+                                <div>
+                                    <h4 class="font-bold text-[#CE9927]">2. Akumulasi</h4>
+                                    <p class="text-xs text-gray-400">Terima energi berdasarkan kecepatan.</p>
+                                </div>
+                            </li>
+                            <li class="flex justify-center py-0">
+                                <div class="h-6 w-[1px] bg-[#CE9927]/50"></div>
+                            </li>
+                            <li class="flex items-start gap-4">
+                                <div class="bg-red-900/40 p-2 rounded-full border border-red-500">⚔️</div>
+                                <div>
+                                    <h4 class="font-bold text-red-500">3. Fase Eksekusi</h4>
+                                    <p class="text-xs text-gray-400">Gunakan kartu untuk menyerang HP lawan.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section class="mb-20">
+                    <h3 class="text-2xl text-[#CE9927] font-bold mb-8 text-center uppercase tracking-widest">
+                        Klasifikasi Kartu
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-gradient-to-br from-[#1a1a1a] to-[#0d0d0d] border border-[#CE9927] rounded-lg p-4 hover:-translate-y-1 transition-transform">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-[10px] font-bold text-red-500 border border-red-500 px-1 rounded">PHYSICAL</span>
+                            </div>
+                            <h4 class="text-lg font-bold text-white mb-1">Tendangan T</h4>
+                            <p class="text-xs text-[#CE9927] border-t border-gray-700 pt-2 mt-2">Efek: 3x Base Damage.</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-[#1a1a1a] to-[#0d0d0d] border border-[#CE9927] rounded-lg p-4 hover:-translate-y-1 transition-transform">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-[10px] font-bold text-blue-400 border border-blue-400 px-1 rounded">DEFENSE</span>
+                            </div>
+                            <h4 class="text-lg font-bold text-white mb-1">Anugerah Hera</h4>
+                            <p class="text-xs text-[#CE9927] border-t border-gray-700 pt-2 mt-2">Efek: Kebal 1 giliran.</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-[#1a1a1a] to-[#0d0d0d] border border-[#CE9927] rounded-lg p-4 hover:-translate-y-1 transition-transform">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-[10px] font-bold text-purple-400 border border-purple-400 px-1 rounded">MAGIC</span>
+                            </div>
+                            <h4 class="text-lg font-bold text-white mb-1">Serangan Zeus</h4>
+                            <p class="text-xs text-[#CE9927] border-t border-gray-700 pt-2 mt-2">Efek: Damage berbasis sisa energi.</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-[#1a1a1a] to-[#0d0d0d] border border-[#CE9927] rounded-lg p-4 hover:-translate-y-1 transition-transform">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-[10px] font-bold text-green-500 border border-green-500 px-1 rounded">DEBUFF</span>
+                            </div>
+                            <h4 class="text-lg font-bold text-white mb-1">Verbal Bullying</h4>
+                            <p class="text-xs text-[#CE9927] border-t border-gray-700 pt-2 mt-2">Efek: Hancurkan DEF lawan.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="text-center mt-10 mb-10">
+                    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="inline-block px-8 py-3 bg-[#CE9927] text-black font-bold text-lg rounded hover:bg-white transition-colors">
+                        KEMBALI KE ATAS
+                    </button>
+                </div>
+            </div>
+        `;
 
           // Tambahkan event listener untuk radio buttons
           setTimeout(() => {
